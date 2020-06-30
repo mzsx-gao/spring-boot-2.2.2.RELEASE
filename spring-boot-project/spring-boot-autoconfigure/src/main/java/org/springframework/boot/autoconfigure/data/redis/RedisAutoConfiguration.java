@@ -31,6 +31,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
+ * redis自动装配
  * {@link EnableAutoConfiguration Auto-configuration} for Spring Data's Redis support.
  *
  * @author Dave Syer
