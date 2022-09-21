@@ -2,6 +2,7 @@ package com.gao.springboot;
 
 import com.gao.springboot.config.SwaggerProperties;
 import com.gao.springboot.configurationProperties.Person;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -15,6 +16,6 @@ public class SpringbootDemoApplication {
 		SpringApplication application = new SpringApplication(SpringbootDemoApplication.class);
 		// application.setBannerMode(Banner.Mode.OFF);
 		application.run(args);
+        System.out.println("启动成功");
 	}
-
 }

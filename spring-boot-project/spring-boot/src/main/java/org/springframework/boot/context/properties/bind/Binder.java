@@ -308,6 +308,7 @@ public class Binder {
 		return bind(name, target, handler, context, false, create);
 	}
 
+	//绑定对象的属性
 	private <T> T bind(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler, Context context,
 			boolean allowRecursiveBinding, boolean create) {
 		context.clearConfigurationProperty();
@@ -365,18 +366,22 @@ public class Binder {
 		}
 	}
 
+	//name是对象绑定的配置前缀
 	private <T> Object bindObject(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
 			Context context, boolean allowRecursiveBinding) {
+        //从当前spring上下文环境中查找name的配置
 		ConfigurationProperty property = findProperty(name, context);
 		if (property == null && containsNoDescendantOf(context.getSources(), name) && context.depth != 0) {
 			return null;
 		}
 		AggregateBinder<?> aggregateBinder = getAggregateBinder(target, context);
+		//绑定嵌套属性（map或list），内部循环map的每一个中对象的
 		if (aggregateBinder != null) {
 			return bindAggregate(name, target, handler, context, aggregateBinder);
 		}
 		if (property != null) {
 			try {
+			    //找到属性对应的配置直接绑定
 				return bindProperty(target, context, property);
 			}
 			catch (ConverterNotFoundException ex) {
@@ -388,9 +393,11 @@ public class Binder {
 				throw ex;
 			}
 		}
+		//配置是一个对象，内部还是循环对象的每一个属性，然后会再调到上面的bindProperty或bindAggregate方法具体绑定每一个属性
 		return bindDataObject(name, target, handler, context, allowRecursiveBinding);
 	}
 
+	//获取嵌套绑定的实现类
 	private AggregateBinder<?> getAggregateBinder(Bindable<?> target, Context context) {
 		Class<?> resolvedType = target.getType().resolve(Object.class);
 		if (Map.class.isAssignableFrom(resolvedType)) {
@@ -405,6 +412,7 @@ public class Binder {
 		return null;
 	}
 
+	//绑定嵌套属性（map或list）
 	private <T> Object bindAggregate(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
 			Context context, AggregateBinder<?> aggregateBinder) {
 		AggregateElementBinder elementBinder = (itemName, itemTarget, source) -> {
@@ -415,6 +423,7 @@ public class Binder {
 		return context.withIncreasedDepth(() -> aggregateBinder.bind(name, target, elementBinder));
 	}
 
+    //从当前spring上下文环境中查找name的配置
 	private ConfigurationProperty findProperty(ConfigurationPropertyName name, Context context) {
 		if (name.isEmpty()) {
 			return null;
@@ -428,6 +437,7 @@ public class Binder {
 		return null;
 	}
 
+	//给属性绑定值
 	private <T> Object bindProperty(Bindable<T> target, Context context, ConfigurationProperty property) {
 		context.setConfigurationProperty(property);
 		Object result = property.getValue();
@@ -436,6 +446,7 @@ public class Binder {
 		return result;
 	}
 
+	//给对象绑定属性值
 	private Object bindDataObject(ConfigurationPropertyName name, Bindable<?> target, BindHandler handler,
 			Context context, boolean allowRecursiveBinding) {
 		if (isUnbindableBean(name, target, context)) {
@@ -445,8 +456,14 @@ public class Binder {
 		if (!allowRecursiveBinding && context.isBindingDataObject(type)) {
 			return null;
 		}
-		DataObjectPropertyBinder propertyBinder = (propertyName, propertyTarget) -> bind(name.append(propertyName),
-				propertyTarget, handler, context, false, false);
+
+		// 绑定具体的属性值，该类内部的bind方法会在下面的方法中回调过来，然后再递归调用Binder#bind方法
+        // Object instance = dataObjectBinder.bind(name, target, context, propertyBinder)
+        // JavaBeanBinder#bind#propertyBinder.bindProperty
+		DataObjectPropertyBinder propertyBinder =
+            //name.append(propertyName)是用"配置前缀+对象的属性"
+            (propertyName, propertyTarget) -> bind(name.append(propertyName), propertyTarget, handler, context, false, false);
+
 		return context.withDataObject(type, () -> {
 			for (DataObjectBinder dataObjectBinder : this.dataObjectBinders) {
 				Object instance = dataObjectBinder.bind(name, target, context, propertyBinder);

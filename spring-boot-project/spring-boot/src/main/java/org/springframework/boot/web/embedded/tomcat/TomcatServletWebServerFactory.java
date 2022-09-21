@@ -169,6 +169,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 				: new ArrayList<>();
 	}
 
+	//创建内嵌的tomcat容器
 	@Override
 	public WebServer getWebServer(ServletContextInitializer... initializers) {
 		if (this.disableMBeanRegistry) {

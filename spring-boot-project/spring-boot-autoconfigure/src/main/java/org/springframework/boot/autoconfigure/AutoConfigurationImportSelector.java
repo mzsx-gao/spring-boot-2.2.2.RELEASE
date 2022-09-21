@@ -88,6 +88,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 
 	private ResourceLoader resourceLoader;
 
+	//默认不会走这里，自动装配类的功能是在AutoConfigurationGroup的process和selectImports方法中处理的
 	@Override
 	public String[] selectImports(AnnotationMetadata annotationMetadata) {
 		if (!isEnabled(annotationMetadata)) {

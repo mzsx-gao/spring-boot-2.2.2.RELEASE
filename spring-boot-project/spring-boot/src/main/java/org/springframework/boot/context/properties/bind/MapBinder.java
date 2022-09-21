@@ -151,7 +151,9 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
 		void bindEntries(ConfigurationPropertySource source, Map<Object, Object> map) {
 			if (source instanceof IterableConfigurationPropertySource) {
 				for (ConfigurationPropertyName name : (IterableConfigurationPropertySource) source) {
+				    //map中value对象的类型，如Phone
 					Bindable<?> valueBindable = getValueBindable(name);
+					//配置文件中配置的map对应的前缀名，如com.example.demo.map.phone1
 					ConfigurationPropertyName entryName = getEntryName(source, name);
 					Object key = getContext().getConverter().convert(getKeyName(entryName), this.keyType);
 					map.computeIfAbsent(key, (k) -> this.elementBinder.bind(entryName, valueBindable));

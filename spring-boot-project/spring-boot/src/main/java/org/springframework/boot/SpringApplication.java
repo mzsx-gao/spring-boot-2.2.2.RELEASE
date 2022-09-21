@@ -315,7 +315,7 @@ public class SpringApplication {
 			// 创建一个DefaultApplicationArguments对象，它持有着args参数，就是main函数传进来的参数
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
 
-			// // 准备环境,处理配置数据
+			// 准备环境,处理配置数据,读取bootstrap.properties,application.properties等文件
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, applicationArguments);
 			// 配置需要忽略的bean
 			configureIgnoreBeanInfo(environment);
@@ -355,7 +355,7 @@ public class SpringApplication {
 		}
 
 		try {
-			// 最后调用running方法
+			// 最后调用running方法，发布ApplicationReadyEvent事件，nacos中的NacosContextRefresher会监听ApplicationReadyEvent事件
 			listeners.running(context);
 		}
 		catch (Throwable ex) {
@@ -374,6 +374,7 @@ public class SpringApplication {
 		ConfigurationPropertySources.attach(environment);
 		// 事件广播,通过所有的listener环境已经准备好了，发送ApplicationEnvironmentPreparedEvent事件
 		// 这里最重要的监听器是ConfigFileApplicationListener,它会添加配置文件属性源到当前环境中
+        // springcloud环境中还会有监听器BootstrapApplicationListener加载bootstrap.properties
 		listeners.environmentPrepared(environment);
 		// 将环境绑定到SpringApplication
 		bindToSpringApplication(environment);
@@ -402,9 +403,13 @@ public class SpringApplication {
 		context.setEnvironment(environment);
 		// 设置上下文的beanNameGenerator和resourceLoader(如果SpringApplication有的话)
 		postProcessApplicationContext(context);
-		// 在上下文context刷新之前调用所有的ApplicationContextInitializer的initialize方法，对上下文做初始化，
-		// 比如这里的初始化过程中可以给context上下文添加一些BeanFactoryPostProcessor
-		applyInitializers(context);
+        /**
+         * 在上下文context刷新之前调用所有的ApplicationContextInitializer的initialize方法，对上下文做初始化，
+         * 比如这里的初始化过程中可以给context上下文添加一些BeanFactoryPostProcessor
+         * 在springcloud环境中会调用PropertySourceBootstrapConfiguration的initialize方法加载配置中心的配置
+         * 并添加到当前ApplicationContext的environment中（nacos就是在这里面加载配置中心的配置--NacosPropertySourceLocator）
+         */
+        applyInitializers(context);
 		// contextPrepareds 是一个空实现
 		listeners.contextPrepared(context);
 		// 打印启动日志

@@ -146,6 +146,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		}
 	}
 
+	//这个方法内部会创建内嵌的tomcat容器
 	@Override
 	protected void onRefresh() {
 		super.onRefresh();

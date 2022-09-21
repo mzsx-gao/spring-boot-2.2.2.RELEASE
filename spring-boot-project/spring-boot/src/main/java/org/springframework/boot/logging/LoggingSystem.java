@@ -58,6 +58,7 @@ public abstract class LoggingSystem {
 
 	private static final Map<String, String> SYSTEMS;
 
+	//默认添加了3个日志框架
 	static {
 		Map<String, String> systems = new LinkedHashMap<>();
 		systems.put("ch.qos.logback.core.Appender", "org.springframework.boot.logging.logback.LogbackLoggingSystem");
@@ -143,6 +144,9 @@ public abstract class LoggingSystem {
 	}
 
 	/**
+     * 真正开始加载日志框架:
+     * 默认添加了3个日志框架,依次是logback、log4j2和jdk的log，因为spring-boot-starter-logging默认依赖了logback，
+     * 因此，logback会被初始化使用
 	 * Detect and return the logging system in use. Supports Logback and Java Logging.
 	 * @param classLoader the classloader
 	 * @return the logging system

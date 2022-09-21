@@ -173,6 +173,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ApplicationEnvironmentPreparedEvent) {
+            //添加配置文件属性源到当前环境中
 			onApplicationEnvironmentPreparedEvent((ApplicationEnvironmentPreparedEvent) event);
 		}
 		if (event instanceof ApplicationPreparedEvent) {
@@ -332,18 +333,9 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 								addProfileToEnvironment(profile.getName());
 							}
 							/**
-							 * 1.this::getPositiveProfileFilter
-							 * 如果需要引用的方法就是当前类中的成员方法，那么可以使用“this::成员方法”的格式来使用方法引用
-							 * 2.MutablePropertySources::addLast 对象方法引用(引用特定类型的任意对象的实例方法)
-							 * 满足一下两个条件: 1.抽象方法的第一个参数类型刚好是实例方法的类型
-							 * 2.抽象方法剩余的参数恰好可以当做实例方法的参数。
-							 * 如果函数式接口的实现能由上面说的实例方法调用来实现的话，那么就可以使用对象方法引用第一个参数类型 最好是自定义的类型
-							 * 语法: 类名::instMethod
-							 *
-							 * 注意load()方法其实主要就是将解析出来的配置文件属性源存入到this.loaded中，供addLoadedPropertySources方法使用
+							 * load()方法主要就是将解析出来的配置文件属性源存入到this.loaded中，供addLoadedPropertySources方法使用
 							 */
-							load(profile, this::getPositiveProfileFilter,
-									addToLoaded(MutablePropertySources::addLast, false));
+							load(profile, this::getPositiveProfileFilter, addToLoaded(MutablePropertySources::addLast, false));
 							this.processedProfiles.add(profile);
 						}
 						load(null, this::getNegativeProfileFilter, addToLoaded(MutablePropertySources::addFirst, true));
@@ -457,6 +449,8 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 			getSearchLocations().forEach((location) -> {
 				boolean isFolder = location.endsWith("/");
 				// getSearchNames默认返回application
+                //springcloud环境中BootstrapApplicationListener中会新创建一个SpringApplition调用其run方法，此时environment中
+                //会有spring.config.name为bootstrap,这时候的names是bootstrap
 				Set<String> names = isFolder ? getSearchNames() : NO_SEARCH_NAMES;
 				names.forEach((name) -> load(location, name, profile, filterFactory, consumer));
 			});
@@ -671,6 +665,8 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 		}
 
 		private Set<String> getSearchNames() {
+		    //springcloud环境中BootstrapApplicationListener中会新创建一个SpringApplition调用其run方法，此时environment中
+            //会有spring.config.name为bootstrap
 			if (this.environment.containsProperty(CONFIG_NAME_PROPERTY)) {
 				String property = this.environment.getProperty(CONFIG_NAME_PROPERTY);
 				return asResolvedSet(property, null);
@@ -685,14 +681,12 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 			return new LinkedHashSet<>(list);
 		}
 
-		// 向environment添加配置文件的propertySource,source的名字如:applicationConfig:
-		// [classpath:/application-test.properties]
+		// 向environment添加配置文件的propertySource,source的名字如:applicationConfig:[classpath:/application-test.properties]
 		private void addLoadedPropertySources() {
 			MutablePropertySources destination = this.environment.getPropertySources();
 			List<MutablePropertySources> loaded = new ArrayList<>(this.loaded.values());
-			// 倒序后 loaded: application-test.properties,
-			// application-test.yml,application.properties;即将不带profile的
-			// 放到后面
+			// 倒序后 loaded: application-test.properties,application-test.yml,application.properties;
+            // 即将不带profile的放到后面
 			Collections.reverse(loaded);
 			String lastAdded = null;
 			Set<String> added = new HashSet<>();

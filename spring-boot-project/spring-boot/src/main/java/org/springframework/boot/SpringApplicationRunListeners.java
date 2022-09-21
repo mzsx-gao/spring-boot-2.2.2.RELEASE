@@ -49,7 +49,8 @@ class SpringApplicationRunListeners {
 	}
 
 	// 一旦准备好环境，发布ApplicationEnvironmentPreparedEvent事件；在ApplicationContext创建环境之前调用，
-	// 这里比较重要的监听器是ConfigFileApplicationListener,它会添加配置文件属性源到当前环境中
+	// 这里比较重要的监听器是ConfigFileApplicationListener和,它会添加配置文件属性源到当前环境中
+    // 在springcloud环境中，会有个BootstrapApplicationListener，它会加载bootstrap.properties文件
 	void environmentPrepared(ConfigurableEnvironment environment) {
 		for (SpringApplicationRunListener listener : this.listeners) {
 			listener.environmentPrepared(environment);

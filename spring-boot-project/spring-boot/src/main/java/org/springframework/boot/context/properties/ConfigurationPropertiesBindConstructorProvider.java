@@ -36,6 +36,7 @@ class ConfigurationPropertiesBindConstructorProvider implements BindConstructorP
 
 	static final ConfigurationPropertiesBindConstructorProvider INSTANCE = new ConfigurationPropertiesBindConstructorProvider();
 
+    //返回用于给定可绑定对象的绑定构造函数，如果不支持构造函数绑定，则返回null
 	@Override
 	public Constructor<?> getBindConstructor(Bindable<?> bindable, boolean isNestedConstructorBinding) {
 		return getBindConstructor(bindable.getType().resolve(), isNestedConstructorBinding);

@@ -66,13 +66,16 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
 		loadConfiguration(initializationContext, configLocation, logFile);
 	}
 
+	//加载日志配置文件
 	private void initializeWithConventions(LoggingInitializationContext initializationContext, LogFile logFile) {
-		String config = getSelfInitializationConfig();
+        //配置文件查找：首先找"logback.xml"
+	    String config = getSelfInitializationConfig();
 		if (config != null && logFile == null) {
 			// self initialization has occurred, reinitialize in case of property changes
 			reinitialize(initializationContext);
 			return;
 		}
+        //然后加后缀查找，就是"logback-spring.xml"
 		if (config == null) {
 			config = getSpringInitializationConfig();
 		}
@@ -80,6 +83,8 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
 			loadConfiguration(initializationContext, config, logFile);
 			return;
 		}
+        // 最后加载默认的配置项，默认配置项其实就是在：
+        // spring-boot-project/spring-boot/src/main/resources/org/springframework/boot/logging/logback
 		loadDefaults(initializationContext, logFile);
 	}
 

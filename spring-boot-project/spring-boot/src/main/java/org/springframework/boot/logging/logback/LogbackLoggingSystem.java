@@ -94,6 +94,7 @@ public class LogbackLoggingSystem extends Slf4JLoggingSystem {
 		super(classLoader);
 	}
 
+	//标准的查找配置文件
 	@Override
 	protected String[] getStandardConfigLocations() {
 		return new String[] { "logback-test.groovy", "logback-test.xml", "logback.groovy", "logback.xml" };
@@ -109,6 +110,7 @@ public class LogbackLoggingSystem extends Slf4JLoggingSystem {
 		loggerContext.getTurboFilterList().add(FILTER);
 	}
 
+	//初始化日志系统，加载日志配置文件
 	@Override
 	public void initialize(LoggingInitializationContext initializationContext, String configLocation, LogFile logFile) {
 		LoggerContext loggerContext = getLoggerContext();
@@ -124,6 +126,8 @@ public class LogbackLoggingSystem extends Slf4JLoggingSystem {
 		}
 	}
 
+	//加载默认的日志配置，
+    // 默认加载spring-boot-project/spring-boot/src/main/resources/org/springframework/boot/logging/logback中的配置文件
 	@Override
 	protected void loadDefaults(LoggingInitializationContext initializationContext, LogFile logFile) {
 		LoggerContext context = getLoggerContext();
@@ -145,6 +149,7 @@ public class LogbackLoggingSystem extends Slf4JLoggingSystem {
 		context.setPackagingDataEnabled(true);
 	}
 
+	//加载日志文件里的配置
 	@Override
 	protected void loadConfiguration(LoggingInitializationContext initializationContext, String location,
 			LogFile logFile) {
@@ -255,6 +260,7 @@ public class LogbackLoggingSystem extends Slf4JLoggingSystem {
 		return LEVELS.getSupported();
 	}
 
+	//设置日志级别
 	@Override
 	public void setLogLevel(String loggerName, LogLevel level) {
 		ch.qos.logback.classic.Logger logger = getLogger(loggerName);

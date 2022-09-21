@@ -37,6 +37,7 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		registerInfrastructureBeans(registry);
 		ConfigurationPropertiesBeanRegistrar beanRegistrar = new ConfigurationPropertiesBeanRegistrar(registry);
+		//将@EnableConfigurationProperties注解里的类注入spring容器中
 		getTypes(metadata).forEach(beanRegistrar::register);
 	}
 
@@ -48,9 +49,9 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 
 	@SuppressWarnings("deprecation")
 	static void registerInfrastructureBeans(BeanDefinitionRegistry registry) {
+	    //加@ConfigutionProperties注解的bean的属性绑定就是ConfigurationPropertiesBindingPostProcessor来处理的
 		ConfigurationPropertiesBindingPostProcessor.register(registry);
 		ConfigurationPropertiesBeanDefinitionValidator.register(registry);
 		ConfigurationBeanFactoryMetadata.register(registry);
 	}
-
 }

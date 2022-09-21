@@ -36,7 +36,7 @@ import org.springframework.core.ResolvableType;
 
 /**
  * {@link DataObjectBinder} for mutable Java Beans.
- *
+ * JavaBeanBinder用于可变 Java Bean 的DataObjectBinder
  * @author Phillip Webb
  * @author Madhura Bhave
  */
@@ -73,6 +73,7 @@ class JavaBeanBinder implements DataObjectBinder {
 		return false;
 	}
 
+	//循环对象的每一个属性进行绑定
 	private <T> boolean bind(DataObjectPropertyBinder propertyBinder, Bean<T> bean, BeanSupplier<T> beanSupplier) {
 		boolean bound = false;
 		for (BeanProperty beanProperty : bean.getProperties().values()) {
@@ -87,6 +88,7 @@ class JavaBeanBinder implements DataObjectBinder {
 		ResolvableType type = property.getType();
 		Supplier<Object> value = property.getValue(beanSupplier);
 		Annotation[] annotations = property.getAnnotations();
+        //对每一个属性再递归调用Binder#bind
 		Object bound = propertyBinder.bindProperty(propertyName,
 				Bindable.of(type).withSuppliedValue(value).withAnnotations(annotations));
 		if (bound == null) {

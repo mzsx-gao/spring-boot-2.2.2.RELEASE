@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
 
 /**
  * {@link DataObjectBinder} for immutable value objects.
- *
+ * 用于不可变值对象的DataObjectBinder
  * @author Madhura Bhave
  * @author Stephane Nicoll
  * @author Phillip Webb

@@ -171,9 +171,14 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		SPRING_BOOT_LOGGING_LOGGERS = Collections.unmodifiableMap(loggers);
 	}
 
-	private static final Class<?>[] EVENT_TYPES = { ApplicationStartingEvent.class,
-			ApplicationEnvironmentPreparedEvent.class, ApplicationPreparedEvent.class, ContextClosedEvent.class,
-			ApplicationFailedEvent.class };
+	//LoggingApplicationListener所接收的事件
+	private static final Class<?>[] EVENT_TYPES = {
+                ApplicationStartingEvent.class,
+                ApplicationEnvironmentPreparedEvent.class,
+                ApplicationPreparedEvent.class,
+                ContextClosedEvent.class,
+                ApplicationFailedEvent.class
+	};
 
 	private static final Class<?>[] SOURCE_TYPES = { SpringApplication.class, ApplicationContext.class };
 
@@ -214,6 +219,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		return false;
 	}
 
+	//事件监听处理
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ApplicationStartingEvent) {
@@ -285,7 +291,9 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		}
 		this.loggerGroups = new LoggerGroups(DEFAULT_GROUP_LOGGERS);
 		initializeEarlyLoggingLevel(environment);
+		//初始化日志系统
 		initializeSystem(environment, this.loggingSystem, this.logFile);
+		//设置日志级别，这里application.properties文件里的日志级别配置会覆盖logback.xml中的配置
 		initializeFinalLoggingLevels(environment, this.loggingSystem);
 		registerShutdownHookIfNecessary(environment, this.loggingSystem);
 	}
@@ -310,6 +318,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		LoggingInitializationContext initializationContext = new LoggingInitializationContext(environment);
 		String logConfig = environment.getProperty(CONFIG_PROPERTY);
 		if (ignoreLogConfig(logConfig)) {
+            //如果没有手动配置
 			system.initialize(initializationContext, null, logFile);
 		}
 		else {
